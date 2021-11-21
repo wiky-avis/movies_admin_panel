@@ -59,3 +59,11 @@ CREATE TABLE IF NOT EXISTS content.person_film_work (
 -- Обязательно проверяется уникальность кинопроизведения, человека и роли человека, чтобы не появлялось дублей
 -- Один человек может быть сразу в нескольких ролях (например, сценарист и режиссёр)
 CREATE UNIQUE INDEX film_work_person_role ON content.person_film_work (film_work_id, person_id, role);
+
+-- Скопировать данные из одной таблицы в другую
+# INSERT INTO t1(val1,val2) SELECT t2.val1, t2.val2 FROM t2 WHERE t2.id = @id
+-- Если есть данные, уже присутствующие в обеих таблицах, и вы хотите обновить значения
+# UPDATE Table1 set name=(select t2.name from Table2 t2 where t2.id=Table1.id)
+
+# Удалить данные из таблицы
+DELETE FROM genre;
