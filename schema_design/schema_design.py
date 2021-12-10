@@ -93,12 +93,12 @@ class GetDataFromDB:
 class LoadDataFromNewDb(GetDataFromDB):
     def create_tables(self):
         self.cursor_new.execute("""
-        CREATE TABLE IF NOT EXISTS genre (
-        id uuid PRIMARY KEY, 
-        name TEXT NOT NULL, 
-        description TEXT, 
-        created_at timestamp with time zone, 
-        updated_at timestamp with time zone
+         CREATE TABLE IF NOT EXISTS genre (
+         id uuid PRIMARY KEY, 
+         name TEXT NOT NULL, 
+         description TEXT, 
+         created_at timestamp with time zone, 
+         updated_at timestamp with time zone
         );
         """)
 
@@ -158,14 +158,15 @@ class LoadDataFromNewDb(GetDataFromDB):
         )
 
     def load_person(self):
+        movies = self.get_data_movies()
         writers = [person[0] for person in
                    self.cursor.execute("""SELECT DISTINCT name FROM writers WHERE name!='N/A'""")]
-        actors = [person[0] for person in self.cursor.execute("""SELECT DISTINCT name FROM actors WHERE name!='N/A'""")]
-        directors = [
-            person[0] for person in
-            self.cursor.execute("""SELECT DISTINCT director FROM movies WHERE director!='N/A'""")
+        actors = [
+            person[0] for person in self.cursor.execute("""SELECT DISTINCT name FROM actors WHERE name!='N/A'""")
         ]
-        persons = writers + actors + directors
+        directors = [person[2] for person in movies if person[2] != 'N/A']
+        persons = set(writers + actors + directors)
+
         self.cursor_new.executemany(
             """INSERT INTO person(id, full_name, created_at, updated_at) VALUES($1, $2, $3, $4)""",
             [
