@@ -1,5 +1,4 @@
 import uuid
-import sqlite3
 from datetime import datetime, timezone
 
 
@@ -263,6 +262,8 @@ class LoadDataFromNewDb(GetDataFromDB):
 
 
 if __name__ == "__main__":
+    import sqlite3
+
     conn = sqlite3.connect("db.sqlite")
     cursor = conn.cursor()
 
