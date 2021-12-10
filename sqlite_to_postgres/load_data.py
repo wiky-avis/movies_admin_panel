@@ -11,6 +11,8 @@ from psycopg2.extras import DictCursor
 tables_names = ["film_work", "genre", "genre_film_work", "person", "person_film_work"]
 
 
+
+
 class SQLiteLoader:
 
     __select_query_film_work = """SELECT * FROM film_work ORDER BY id"""
@@ -55,42 +57,47 @@ class SQLiteLoader:
 
 class PostgresSaver:
 
+    def __init__(self, conn):
+        self.pg_conn = conn
+
+    def load_film_work(self, film_work):
+        pg_cursor = self.pg_conn.cursor()
+        pg_cursor.executemany(
+            """INSERT INTO content.film_work (
+            id, title, description, creation_date, certificate, file_path, rating, type, created_at, updated_at
+            ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10);""",
+            [
+                (
+                    film.id,
+                    film.title,
+                    film.description,
+                    film.creation_date,
+                    film.certificate,
+                    film.file_path,
+                    film.rating,
+                    film.type,
+                    film.created_at,
+                    film.updated_at,
+                ) for film in film_work
+            ]
+        )
+
     def save_all_data(self, data):
         pass
 
 
 def load_from_sqlite(connection: sqlite3.Connection, pg_conn: _connection):
     """Основной метод загрузки данных из SQLite в Postgres"""
-    # postgres_saver = PostgresSaver(pg_conn)
+    postgres_saver = PostgresSaver(pg_conn)
     sqlite_loader = SQLiteLoader(connection)
+
     film_work = sqlite_loader.get_film_work()
     genres = sqlite_loader.get_genre()
     genre_film_work = sqlite_loader.get_genre_film_work()
     persons = sqlite_loader.get_persons()
     person_film_work = sqlite_loader.get_person_film_work()
 
-    pg_cursor = pg_conn.cursor()
-
-    pg_cursor.executemany(
-        """INSERT INTO content.film_work (
-        id, title, description, creation_date, certificate, file_path, rating, type, created_at, updated_at
-        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10);""",
-        [
-            (
-                film.id,
-                film.title,
-                film.description,
-                film.creation_date,
-                film.certificate,
-                film.file_path,
-                film.rating,
-                film.type,
-                film.created_at,
-                film.updated_at
-            ) for film in film_work
-        ]
-    )
-
+    postgres_saver.load_film_work(film_work)
 
 
     # postgres_saver.save_all_data(data)
