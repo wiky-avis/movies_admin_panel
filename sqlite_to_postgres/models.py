@@ -1,6 +1,5 @@
-import uuid
 from dataclasses import dataclass
-from datetime import datetime, timezone, date
+from datetime import date
 
 
 @dataclass
@@ -8,9 +7,9 @@ class FilmWork:
     id: str
     title: str
     description: str
-    creation_date: str or None
-    certificate: str or None
-    file_path: str or None
+    creation_date: str
+    certificate: str
+    file_path: str
     rating: float
     type: str
     created_at: str

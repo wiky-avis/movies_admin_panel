@@ -1,16 +1,10 @@
-from dataclasses import dataclass
+from dataclasses import astuple
 import sqlite3
-from pprint import pprint
-from datetime import datetime
 from models import FilmWork, Genre, GenreFilmWork, Person, PersonFilmWork
 
 import psycopg2
 from psycopg2.extensions import connection as _connection
-from psycopg2.extras import DictCursor
-
-tables_names = ["film_work", "genre", "genre_film_work", "person", "person_film_work"]
-
-
+from psycopg2.extras import DictCursor, execute_values
 
 
 class SQLiteLoader:
@@ -26,64 +20,57 @@ class SQLiteLoader:
 
     def get_film_work(self):
         cursor = self.conn.cursor()
-        films = tuple(cursor.execute(self.__select_query_film_work))
-        for data in films:
-            yield FilmWork(*data)
+        films = cursor.execute(self.__select_query_film_work)
+        list_data = [astuple(FilmWork(*data)) for data in films]
+        return list_data
 
     def get_genre(self):
         cursor = self.conn.cursor()
-        genres = tuple(cursor.execute(self.__select_query_genre))
-        for data in genres:
-            yield Genre(*data)
+        genres = cursor.execute(self.__select_query_genre)
+        list_data = [astuple(Genre(*data)) for data in genres]
+        return list_data
 
     def get_genre_film_work(self):
         cursor = self.conn.cursor()
-        genre_film_work = tuple(cursor.execute(self.__select_query_genre_film_work))
-        for data in genre_film_work:
-            yield GenreFilmWork(*data)
+        genre_film_work = cursor.execute(self.__select_query_genre_film_work)
+        list_data = [astuple(GenreFilmWork(*data)) for data in genre_film_work]
+        return list_data
 
     def get_persons(self):
         cursor = self.conn.cursor()
-        persons = tuple(cursor.execute(self.__select_query_person))
-        for data in persons:
-            yield Person(*data)
+        persons = cursor.execute(self.__select_query_person)
+        list_data = [astuple(Person(*data)) for data in persons]
+        return list_data
 
     def get_person_film_work(self):
         cursor = self.conn.cursor()
-        person_film_work = tuple(cursor.execute(self.__select_query_person_film_work))
-        for data in person_film_work:
-            yield PersonFilmWork(*data)
+        person_film_work = cursor.execute(self.__select_query_person_film_work)
+        list_data = [astuple(PersonFilmWork(*data)) for data in person_film_work]
+        return list_data
+
+    def __call__(self):
+        return {
+            "film_work": self.get_film_work(),
+            "genre": self.get_genre(),
+            "genre_film_work": self.get_genre_film_work(),
+            "person": self.get_persons(),
+            "person_film_work": self.get_person_film_work()
+        }
 
 
 class PostgresSaver:
 
     def __init__(self, conn):
         self.pg_conn = conn
+        self.cursor = self.pg_conn.cursor()
 
-    def load_film_work(self, film_work):
-        pg_cursor = self.pg_conn.cursor()
-        pg_cursor.executemany(
-            """INSERT INTO content.film_work (
-            id, title, description, creation_date, certificate, file_path, rating, type, created_at, updated_at
-            ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10);""",
-            [
-                (
-                    film.id,
-                    film.title,
-                    film.description,
-                    film.creation_date,
-                    film.certificate,
-                    film.file_path,
-                    film.rating,
-                    film.type,
-                    film.created_at,
-                    film.updated_at,
-                ) for film in film_work
-            ]
+    def save_all_data(self, data: list, table_name: str):
+        execute_values(
+            self.cursor,
+            """INSERT INTO content.{} VALUES %s;""".format(table_name), data, page_size=100
         )
 
-    def save_all_data(self, data):
-        pass
+        self.pg_conn.commit()
 
 
 def load_from_sqlite(connection: sqlite3.Connection, pg_conn: _connection):
@@ -91,16 +78,10 @@ def load_from_sqlite(connection: sqlite3.Connection, pg_conn: _connection):
     postgres_saver = PostgresSaver(pg_conn)
     sqlite_loader = SQLiteLoader(connection)
 
-    film_work = sqlite_loader.get_film_work()
-    genres = sqlite_loader.get_genre()
-    genre_film_work = sqlite_loader.get_genre_film_work()
-    persons = sqlite_loader.get_persons()
-    person_film_work = sqlite_loader.get_person_film_work()
+    get_data = sqlite_loader()
 
-    postgres_saver.load_film_work(film_work)
-
-
-    # postgres_saver.save_all_data(data)
+    for table_name, data in get_data.items():
+        postgres_saver.save_all_data(data, table_name)
 
 
 if __name__ == '__main__':
