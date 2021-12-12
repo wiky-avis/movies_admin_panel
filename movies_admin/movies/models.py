@@ -22,7 +22,7 @@ class Genre(MixinTimeStampedModel):
     class Meta:
         verbose_name = _('жанр')
         verbose_name_plural = _('жанры')
-        db_table = "genre"
+        db_table = '"content"."genre"'
 
     def __str__(self):
         return self.name
@@ -46,7 +46,7 @@ class FilmWork(MixinTimeStampedModel):
     class Meta:
         verbose_name = _('кинопроизведение')
         verbose_name_plural = _('кинопроизведения')
-        db_table = "film_work"
+        db_table = '"content"."film_work"'
 
     def __str__(self):
         return self.title
@@ -62,7 +62,7 @@ class FilmWorkGenre(MixinTimeStampedModel):
         ]
         verbose_name = _('Жанр фильма')
         verbose_name_plural = _('Жанры фильмов')
-        db_table = "genre_film_work"
+        db_table = '"content"."genre_film_work"'
 
     def __str__(self):
         return str(f'{self.film_work} - {self.genre}')
@@ -81,7 +81,7 @@ class Person(MixinTimeStampedModel):
     class Meta:
         verbose_name = _('Персона')
         verbose_name_plural = _('Персоны')
-        db_table = "person"
+        db_table = '"content"."person"'
 
     def __str__(self):
         return self.full_name
@@ -97,7 +97,7 @@ class PersonFilmWork(MixinTimeStampedModel):
     role = models.CharField(_('профессия'), max_length=20, choices=PersonRole.choices)
 
     class Meta:
-        db_table = "person_film_work"
+        db_table = '"content"."person_film_work"'
         indexes = [
             models.Index(fields=['film_work_id', 'person_id', 'role'], name='film_work_person'),
         ]
