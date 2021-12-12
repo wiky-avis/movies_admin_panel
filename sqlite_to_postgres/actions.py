@@ -1,25 +1,24 @@
 from dataclasses import astuple
 from psycopg2.extras import execute_values
+from typing import List
 
 
 class SQLiteLoader:
 
     __select_query = """SELECT * FROM {0} ORDER BY id"""
 
-    def __init__(self, conn, table_name, model):
+    def __init__(self, conn):
         self.cursor = conn.cursor()
-        self.table_name = table_name
-        self.model = model
 
-    def __call__(self):
-        self.cursor.execute(self.__select_query.format(self.table_name))
+    def __call__(self, table_name, model) -> List[List[tuple]]:
+        self.cursor.execute(self.__select_query.format(table_name))
         while True:
             page = self.cursor.fetchmany(100)
             if not page:
                 break
             parts = []
             for data in page:
-                parts.append(astuple(self.model(*data)))
+                parts.append(astuple(model(*data)))
             yield parts
 
 

@@ -1,19 +1,16 @@
 import sqlite3
-from models import FilmWork, Genre, GenreFilmWork, Person, PersonFilmWork
 import psycopg2
 from psycopg2.extensions import connection as _connection
 from psycopg2.extras import DictCursor
 from actions import SQLiteLoader, PostgresSaver
-
-TABLES = ("film_work", "genre", "genre_film_work", "person", "person_film_work")
-MODELS = (FilmWork, Genre, GenreFilmWork, Person, PersonFilmWork)
+from sqlite_to_postgres.consts import TABLES, MODELS
 
 
 def load_from_sqlite(connection: sqlite3.Connection, pg_conn: _connection):
     """Основной метод загрузки данных из SQLite в Postgres"""
     for table_name, model in zip(TABLES, MODELS):
-        sqlite_loader = SQLiteLoader(connection, table_name, model)
-        get_data = sqlite_loader()
+        sqlite_loader = SQLiteLoader(connection)
+        get_data = sqlite_loader(table_name, model)
         postgres_saver = PostgresSaver(pg_conn)
         postgres_saver(get_data, table_name)
 
