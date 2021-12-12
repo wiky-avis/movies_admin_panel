@@ -34,7 +34,7 @@ class PostgresSaver:
         for page in pages:
             execute_values(
                 self.cursor,
-                """INSERT INTO content.{0} VALUES %s;""".format(table_name), page, page_size=100
+                """INSERT INTO content.{0} VALUES %s;""".format(table_name), page, page_size=BLOCK_SIZE
             )
 
         self.pg_conn.commit()
