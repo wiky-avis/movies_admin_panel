@@ -6,7 +6,7 @@ from django.utils.translation import gettext_lazy as _
 from model_utils.fields import AutoCreatedField, AutoLastModifiedField
 
 
-class MixinTimeStampedModel(models.Model):
+class UpdatedCreatedMixin(models.Model):
     id = models.UUIDField(primary_key=True, editable=False, default=uuid.uuid4)
     created_at = AutoCreatedField(_('created_at'))
     updated_at = AutoLastModifiedField(_('updated_at'))
@@ -15,7 +15,7 @@ class MixinTimeStampedModel(models.Model):
         abstract = True
 
 
-class Genre(MixinTimeStampedModel):
+class Genre(UpdatedCreatedMixin):
     name = models.CharField(_('название'), max_length=255)
     description = models.TextField(_('описание'), blank=True)
 
@@ -33,7 +33,7 @@ class FilmWorkType(models.TextChoices):
     TV_SHOW = 'tv_show', _('шоу')
 
 
-class FilmWork(MixinTimeStampedModel):
+class FilmWork(UpdatedCreatedMixin):
     title = models.CharField(_('название'), max_length=255)
     description = models.TextField(_('описание'), blank=True)
     creation_date = models.DateField(_('дата создания фильма'), blank=True)
@@ -52,7 +52,7 @@ class FilmWork(MixinTimeStampedModel):
         return self.title
 
 
-class FilmWorkGenre(MixinTimeStampedModel):
+class FilmWorkGenre(UpdatedCreatedMixin):
     film_work = models.ForeignKey(FilmWork, on_delete=models.CASCADE, to_field='id', db_column='film_work_id')
     genre = models.ForeignKey('Genre', on_delete=models.CASCADE, to_field='id', db_column='genre_id')
 
@@ -74,7 +74,7 @@ class PersonRole(models.TextChoices):
     WRITER = 'writer', _('писатель')
 
 
-class Person(MixinTimeStampedModel):
+class Person(UpdatedCreatedMixin):
     full_name = models.CharField(_('имя'), max_length=255)
     birth_date = models.DateField(_('дата рождения'))
 
@@ -87,7 +87,7 @@ class Person(MixinTimeStampedModel):
         return self.full_name
 
 
-class PersonFilmWork(MixinTimeStampedModel):
+class PersonFilmWork(UpdatedCreatedMixin):
     film_work = models.ForeignKey(
         FilmWork, on_delete=models.CASCADE, to_field='id', db_column='film_work_id'
     )
