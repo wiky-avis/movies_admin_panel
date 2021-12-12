@@ -9,5 +9,8 @@ DATABASES = {
         'PASSWORD': os.environ['POSTGRES_PASSWORD'],
         'HOST': os.environ['DB_HOST'],
         'PORT': os.environ['DB_PORT'],
+        'OPTIONS': {
+                   'options': '-c search_path=public,content'
+        }
     }
 }
