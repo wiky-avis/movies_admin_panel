@@ -1,4 +1,5 @@
 import uuid
+import sqlite3
 from datetime import datetime, timezone
 
 
@@ -261,25 +262,18 @@ class LoadDataFromNewDb(GetDataFromDB):
             ]
         )
 
+    def __call__(self):
+        self.create_tables()
+        self.load_genres()
+        self.load_person()
+        self.load_film_work()
+        self.load_genre_film_work()
+        self.load_person_film_work()
+
 
 if __name__ == "__main__":
-    import sqlite3
-
-    conn = sqlite3.connect("db.sqlite")
-    cursor = conn.cursor()
-
-    conn_new = sqlite3.connect("new_db.sqlite")
-    cursor_new = conn_new.cursor()
-
-    new_db = LoadDataFromNewDb(cursor, cursor_new)
-    new_db.create_tables()
-    new_db.load_genres()
-    new_db.load_person()
-    new_db.load_film_work()
-    new_db.load_genre_film_work()
-    new_db.load_person_film_work()
-
-    conn.commit()
-    conn.close()
-    conn_new.commit()
-    conn_new.close()
+    with sqlite3.connect('db.sqlite') as sqlite_conn, sqlite3.connect('new_db.sqlite') as new_sqlite_conn:
+        cursor = sqlite_conn.cursor()
+        cursor_new = new_sqlite_conn.cursor()
+        load_to_new_db = LoadDataFromNewDb(cursor, cursor_new)
+        load_to_new_db()
