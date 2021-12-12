@@ -2,6 +2,8 @@ from dataclasses import astuple
 from psycopg2.extras import execute_values
 from typing import List
 
+from sqlite_to_postgres.consts import BLOCK_SIZE
+
 
 class SQLiteLoader:
 
@@ -13,7 +15,7 @@ class SQLiteLoader:
     def __call__(self, table_name, model) -> List[List[tuple]]:
         self.cursor.execute(self.__select_query.format(table_name))
         while True:
-            page = self.cursor.fetchmany(100)
+            page = self.cursor.fetchmany(BLOCK_SIZE)
             if not page:
                 break
             parts = []
