@@ -5,7 +5,7 @@
 
 Запустить контейнер с Postgresql и спроектировать БД для переноса [контейнер и инструкция тут](https://github.com/wiky-avis/psql-container.git).
 
-Создайте базу данных и таблицы в Postgresql по примеру из файла [schema_design](schema_design.txt).
+Создайте базу данных и таблицы в Postgresql по примеру из файла [schema_design](schema_design.txt) или запустите скрипт `python schema_design.py`.
 
 Запустите скрипт:
 
