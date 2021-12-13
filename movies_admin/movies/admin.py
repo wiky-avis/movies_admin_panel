@@ -14,11 +14,9 @@ class GenreInline(admin.TabularInline):
 
 @admin.register(FilmWork)
 class FilmWorkAdmin(admin.ModelAdmin):
-    # отображение полей в списке
     list_display = ('title', 'type', 'creation_date', 'rating')
     list_filter = ('type', )
     search_fields = ('title', 'description', 'id')
-    # порядок следования полей в форме создания/редактирования
     fields = ('certificate', 'title', 'type', 'description', 'creation_date', 'file_path', 'rating')
     inlines = [
         PersonRoleInline,
