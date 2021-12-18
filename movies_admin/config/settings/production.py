@@ -1,6 +1,5 @@
 from .base import *
 
-
 DATABASES = {
     'default': {
         'ENGINE': os.environ['DB_ENGINE'],

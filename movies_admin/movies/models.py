@@ -15,7 +15,7 @@ class UpdatedCreatedMixin(models.Model):
         abstract = True
 
 
-class Genre(UpdatedCreatedMixin):
+class Genre(UpdatedCreatedMixin, models.Model):
     name = models.CharField(_('название'), max_length=255)
     description = models.TextField(_('описание'), blank=True)
 
@@ -23,6 +23,7 @@ class Genre(UpdatedCreatedMixin):
         verbose_name = _('жанр')
         verbose_name_plural = _('жанры')
         db_table = '"content"."genre"'
+        managed = False
 
     def __str__(self):
         return self.name
@@ -33,7 +34,7 @@ class FilmWorkType(models.TextChoices):
     TV_SHOW = 'tv_show', _('шоу')
 
 
-class FilmWork(UpdatedCreatedMixin):
+class FilmWork(UpdatedCreatedMixin, models.Model):
     title = models.CharField(_('название'), max_length=255)
     description = models.TextField(_('описание'), blank=True)
     creation_date = models.DateField(_('дата создания фильма'), blank=True)
@@ -47,14 +48,17 @@ class FilmWork(UpdatedCreatedMixin):
         verbose_name = _('кинопроизведение')
         verbose_name_plural = _('кинопроизведения')
         db_table = '"content"."film_work"'
+        managed = False
 
     def __str__(self):
         return self.title
 
 
-class FilmWorkGenre(UpdatedCreatedMixin):
+class FilmWorkGenre(models.Model):
+    id = models.UUIDField(primary_key=True, editable=False, default=uuid.uuid4)
     film_work = models.ForeignKey(FilmWork, on_delete=models.CASCADE, to_field='id', db_column='film_work_id')
     genre = models.ForeignKey('Genre', on_delete=models.CASCADE, to_field='id', db_column='genre_id')
+    created_at = models.DateTimeField(auto_now=True)
 
     class Meta:
         indexes = [
@@ -63,6 +67,7 @@ class FilmWorkGenre(UpdatedCreatedMixin):
         verbose_name = _('Жанр фильма')
         verbose_name_plural = _('Жанры фильмов')
         db_table = '"content"."genre_film_work"'
+        managed = False
 
     def __str__(self):
         return str(f'{self.film_work} - {self.genre}')
@@ -74,7 +79,7 @@ class PersonRole(models.TextChoices):
     WRITER = 'writer', _('писатель')
 
 
-class Person(UpdatedCreatedMixin):
+class Person(UpdatedCreatedMixin, models.Model):
     full_name = models.CharField(_('имя'), max_length=255)
     birth_date = models.DateField(_('дата рождения'))
 
@@ -82,12 +87,14 @@ class Person(UpdatedCreatedMixin):
         verbose_name = _('Персона')
         verbose_name_plural = _('Персоны')
         db_table = '"content"."person"'
+        managed = False
 
     def __str__(self):
         return self.full_name
 
 
-class PersonFilmWork(UpdatedCreatedMixin):
+class PersonFilmWork(models.Model):
+    id = models.UUIDField(primary_key=True, editable=False, default=uuid.uuid4)
     film_work = models.ForeignKey(
         FilmWork, on_delete=models.CASCADE, to_field='id', db_column='film_work_id'
     )
@@ -95,12 +102,14 @@ class PersonFilmWork(UpdatedCreatedMixin):
         Person, on_delete=models.CASCADE, to_field='id', db_column='person_id'
     )
     role = models.CharField(_('профессия'), max_length=20, choices=PersonRole.choices)
+    created_at = models.DateTimeField(auto_now=True)
 
     class Meta:
         db_table = '"content"."person_film_work"'
         indexes = [
             models.Index(fields=['film_work_id', 'person_id', 'role'], name='film_work_person'),
         ]
+        managed = False
 
     def __str__(self):
         return str(f'{self.film_work} - {self.person}')
