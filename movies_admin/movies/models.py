@@ -1,6 +1,6 @@
 import uuid
 
-from django.core.validators import MinValueValidator
+from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 from model_utils.fields import AutoCreatedField, AutoLastModifiedField
@@ -23,6 +23,7 @@ class Genre(UpdatedCreatedMixin, models.Model):
         verbose_name = _('жанр')
         verbose_name_plural = _('жанры')
         db_table = '"content"."genre"'
+        ordering = ('name',)
         managed = False
 
     def __str__(self):
@@ -40,14 +41,16 @@ class FilmWork(UpdatedCreatedMixin, models.Model):
     creation_date = models.DateField(_('дата создания фильма'), blank=True)
     certificate = models.TextField(_('сертификат'), blank=True)
     file_path = models.FileField(_('файл'), upload_to='film_works/', blank=True)
-    rating = models.FloatField(_('рейтинг'), validators=[MinValueValidator(0)], blank=True)
+    rating = models.FloatField(_('рейтинг'), validators=[MinValueValidator(0), MaxValueValidator(10)], blank=True)
     type = models.CharField(_('тип'), max_length=20, choices=FilmWorkType.choices)
-    genres = models.ManyToManyField(Genre, through='FilmWorkGenre')
+    film_genres = models.ManyToManyField(Genre, through='FilmWorkGenre')
+    film_persons = models.ManyToManyField('Person', through='FilmWorkPerson')
 
     class Meta:
         verbose_name = _('кинопроизведение')
         verbose_name_plural = _('кинопроизведения')
         db_table = '"content"."film_work"'
+        ordering = ('title', )
         managed = False
 
     def __str__(self):
@@ -66,8 +69,8 @@ class FilmWorkGenre(models.Model):
         ]
         verbose_name = _('Жанр фильма')
         verbose_name_plural = _('Жанры фильмов')
+        ordering = ('id',)
         db_table = '"content"."genre_film_work"'
-        managed = False
 
     def __str__(self):
         return str(f'{self.film_work} - {self.genre}')
@@ -87,13 +90,14 @@ class Person(UpdatedCreatedMixin, models.Model):
         verbose_name = _('Персона')
         verbose_name_plural = _('Персоны')
         db_table = '"content"."person"'
+        ordering = ('full_name',)
         managed = False
 
     def __str__(self):
         return self.full_name
 
 
-class PersonFilmWork(models.Model):
+class FilmWorkPerson(models.Model):
     id = models.UUIDField(primary_key=True, editable=False, default=uuid.uuid4)
     film_work = models.ForeignKey(
         FilmWork, on_delete=models.CASCADE, to_field='id', db_column='film_work_id'
@@ -109,7 +113,7 @@ class PersonFilmWork(models.Model):
         indexes = [
             models.Index(fields=['film_work_id', 'person_id', 'role'], name='film_work_person'),
         ]
-        managed = False
+        ordering = ('id',)
 
     def __str__(self):
         return str(f'{self.film_work} - {self.person}')

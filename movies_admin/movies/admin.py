@@ -1,10 +1,10 @@
 from django.contrib import admin
 
-from .models import FilmWork, FilmWorkGenre, PersonFilmWork, Genre, Person
+from .models import FilmWork, FilmWorkGenre, FilmWorkPerson, Genre, Person
 
 
 class PersonRoleInline(admin.TabularInline):
-    model = PersonFilmWork
+    model = FilmWorkPerson
     extra = 0
 
 
