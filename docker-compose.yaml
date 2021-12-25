@@ -1,0 +1,61 @@
+version: '3.7'
+services:
+  pg:
+    image: postgres:13
+    volumes:
+      - data:/var/lib/postgresql/data
+    env_file:
+      - movies_admin/config/.env
+    restart: always
+    networks:
+      - app-network
+
+  movies-admin:
+    depends_on:
+      - pg
+    build: .
+    volumes:
+      - static:/home/movies/static
+    env_file:
+      - movies_admin/config/.env
+    command: >
+      sh -c "
+      sleep 10 &&
+      python3 manage.py migrate &&
+      gunicorn -b 0.0.0.0:8000 config.wsgi app:movies"
+    networks:
+      - app-network
+
+  server:
+    image: nginx:1.20
+    depends_on:
+      - movies-admin
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ./nginx/conf:/etc/nginx/conf.d
+      - static:/var/www/static
+    ports:
+      - "80:80"
+    restart: on-failure
+    networks:
+      - app-network
+
+  load_data:
+    build: sqlite_to_postgres/.
+    command: >
+      bash -c "sleep 15
+      && python3 load_data.py"
+    depends_on:
+      - pg
+      - movies-admin
+    networks:
+      - app-network
+
+volumes:
+  static:
+  data:
+  db:
+
+networks:
+    app-network:
+        driver: bridge
