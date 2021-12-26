@@ -3,10 +3,11 @@ version: '3.9'
 services:
   db:
     image: postgres:13.3
-    environment:
-      POSTGRES_DB: "moviesdb"
-      POSTGRES_USER: "userdb"
-      POSTGRES_PASSWORD: "password"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+      - ./sqlite_to_postgres/db.sqlite:/docker-entrypoint-initdb.d/db.sqlite
+    env_file:
+      - .env
     ports:
       - "5432:5432"
 

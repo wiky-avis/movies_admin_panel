@@ -2,13 +2,10 @@ from .base import *
 
 DEBUG = True
 
-# Database
-# https://docs.djangoproject.com/en/3.1/ref/settings/#databases
-
 DATABASES = {
     'default': {
         'ENGINE': os.environ['DB_ENGINE'],
-        'NAME': os.environ['DB_NAME'],
+        'NAME': os.environ['POSTGRES_DB'],
         'USER': os.environ['POSTGRES_USER'],
         'PASSWORD': os.environ['POSTGRES_PASSWORD'],
         'HOST': os.environ['DB_HOST'],

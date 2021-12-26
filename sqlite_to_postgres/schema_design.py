@@ -1,5 +1,6 @@
 import psycopg2
 from psycopg2.extras import DictCursor
+import os
 
 
 class PostgresCreateSchemaDb:
@@ -65,7 +66,7 @@ class PostgresCreateSchemaDb:
 
 
 if __name__ == '__main__':
-    dsl = {'dbname': 'moviesdb', 'user': 'userdb', 'password': 'password', 'host': 'db', 'port': 5432}
+    dsl = {'dbname': os.environ['POSTGRES_DB'], 'user': os.environ['POSTGRES_USER'], 'password': os.environ['POSTGRES_PASSWORD'], 'host': os.environ['DB_HOST'], 'port': os.environ['DB_PORT']}
     with psycopg2.connect(**dsl, cursor_factory=DictCursor) as pg_conn:
         postgres_creator = PostgresCreateSchemaDb(pg_conn)
         postgres_creator()
