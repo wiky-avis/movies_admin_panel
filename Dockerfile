@@ -1,13 +1,13 @@
-FROM python:3.7
-WORKDIR /home/movies
+FROM python:3.9
+RUN  apt-get update && apt-get install -y netcat && pip install --upgrade pip
 
-RUN apt-get update \
-    && apt-get -y install postgresql-client
+WORKDIR /admin_movies
 
-COPY ./movies_admin/requirements.txt /home/movies/
-RUN pip3 install --no-cache-dir -r requirements.txt
+COPY entrypoint.sh .
+RUN chmod +x entrypoint.sh
 
-COPY ./movies_admin/ /home/movies
+COPY requirements.txt .
+RUN pip install -r requirements.txt
 
-EXPOSE 8000
-CMD ["gunicorn", "-b", "0.0.0.0:8000", "config.wsgi", "app:movies"]
+COPY . .
+ENTRYPOINT ["sh", "entrypoint.sh"]

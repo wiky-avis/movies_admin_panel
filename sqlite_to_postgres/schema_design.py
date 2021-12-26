@@ -65,7 +65,7 @@ class PostgresCreateSchemaDb:
 
 
 if __name__ == '__main__':
-    dsl = {'dbname': 'moviesdb', 'user': 'userdb', 'password': 'password', 'host': '127.0.0.1', 'port': 5432}
+    dsl = {'dbname': 'moviesdb', 'user': 'userdb', 'password': 'password', 'host': 'db', 'port': 5432}
     with psycopg2.connect(**dsl, cursor_factory=DictCursor) as pg_conn:
         postgres_creator = PostgresCreateSchemaDb(pg_conn)
         postgres_creator()

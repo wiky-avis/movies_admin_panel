@@ -6,14 +6,13 @@
 3. `movies_admin` - раздел с материалами для панели администратора.
 
 
-Установите виртуальное окружение
+Запуск приложения:
 
-    `python -m venv venv`
+    `docker-compose up -d`
 
-и активируйте его:
-    
-    `source venv/bin/activate`
+Зайти в контейнер и создать пользователя для доступа в админ панель:
 
-Установите зависимости:
+    `docker exec -it movies_admin_panel_web_1 bash`
 
-    `pip install -r requirements.txt`
+
+    `cd movies_admin && python manage.py createsuperuser`

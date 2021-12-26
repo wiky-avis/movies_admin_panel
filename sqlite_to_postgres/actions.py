@@ -2,7 +2,7 @@ from dataclasses import astuple
 from psycopg2.extras import execute_values
 from typing import List
 
-from sqlite_to_postgres.consts import BLOCK_SIZE
+from consts import BLOCK_SIZE
 
 
 class SQLiteLoader:
