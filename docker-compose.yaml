@@ -19,6 +19,7 @@ services:
       - .env
     volumes:
       - static_volume:/admin_movies/movies_admin/static/
+    command: make isort-check black-check flake8-check pytest
 
   nginx:
     image: nginx:1.19.2

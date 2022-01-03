@@ -4,3 +4,6 @@ django-model-utils==4.0.0
 django-environ
 psycopg2-binary==2.9.2
 django-debug-toolbar==2.2
+flake8
+black
+isort
